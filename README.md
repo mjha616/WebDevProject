@@ -1,54 +1,49 @@
-# WebDevProject
+# Movie Ticket Booking Web App - College Project
 
-# Movie Ticket Booking Web Application
+This is a complete frontend project designed for a 3-member team. The project architecture is structured so that it can be seamlessly upgraded to a complete MERN stack (MongoDB, Express, React, Node.js) application in the next phase.
 
-A full-stack movie ticket booking application built with the MERN stack (MongoDB, Express.js, React.js, Node.js) featuring role-based access control, seat selection, and booking management.
+## Tech Stack Division
 
-## Features
+### Member 1: HTML + CSS (`/html-css`)
+- Responsible for semantic HTML structure and responsive design.
+- Uses vanilla CSS for styling (no external CSS frameworks to show core concepts).
+- Files: `index.html`, `movies.html`, `movie-details.html`, `booking-summary.html`, `confirmation.html`, `login.html`, `signup.html`, `style.css`.
 
-### User Features
-- **User Registration & Authentication**: Secure JWT-based authentication
-- **Movie Browsing**: View movies with search and filter functionality
-- **Show Selection**: Browse available shows by date and theatre
-- **Seat Selection**: Interactive seat map with real-time availability
-- **Ticket Booking**: Book multiple seats with payment integration
-- **Booking History**: View and manage past bookings
-- **Booking Cancellation**: Cancel bookings (if allowed by admin)
+### Member 2: JavaScript (`/javascript`)
+- Responsible for DOM manipulation and interactive logic.
+- Implements dynamic movie loading, seat selection, and price calculation.
+- Files: `script.js` (logic) and `data.js` (simulated database).
 
-### Admin Features
-- **Movie Management**: CRUD operations for movies with poster uploads
-- **Theatre Management**: Manage theatre locations and seat configurations
-- **Show Management**: Create and manage movie shows and schedules
-- **Booking Management**: View all bookings and manage booking status
-- **Dashboard**: Overview of system statistics and recent activity
+### Member 3: React (`/react-app`)
+- Converts the entire Vanilla UI into modern, reusable React components.
+- Sets up routing using React Router Data.
+- Simulates API integration using `services/api.js`.
 
-## Tech Stack
+---
 
-### Frontend
-- **React.js** - UI library
-- **Vite** - Build tool
-- **Tailwind CSS** - Styling
-- **React Router** - Client-side routing
-- **Axios** - HTTP client
-- **React Hot Toast** - Notifications
-- **Heroicons** - Icons
+## 🚀 How to Run the Project Local
 
+### Option A: Vanilla Version (HTML/CSS/JS)
+1. Open the project folder `html-css`.
+2. Double-click on `index.html` to open it in any web browser (Chrome/Firefox).
+3. Navigation, seat selection, and price calculations will work automatically thanks to the linked `../javascript/script.js`.
 
-## Frontend Setup
-
-1. Navigate to the frontend directory:
-```bash
-cd movie-booking-app/frontend
-```
-
-2. Install dependencies:
-```bash
-npm install
-```
-
+### Option B: React Version
+1. Open a terminal and navigate to the `react-app` folder:
+   ```bash
+   cd react-app
+   ```
+2. Install dependencies (Node.js must be installed):
+   ```bash
+   npm install
+   ```
 3. Start the development server:
-```bash
-npm run dev
-```
+   ```bash
+   npm run dev
+   ```
+4. Open the localhost URL provided in the terminal (usually `http://localhost:5173`).
 
-The frontend will be running on `http://localhost:5173`
+---
+
+
+
