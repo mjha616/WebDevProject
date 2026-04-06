@@ -3,11 +3,9 @@ import { useNavigate } from 'react-router-dom';
 
 const MovieCard = ({ movie }) => {
   const navigate = useNavigate();
-
   const handleClick = () => {
     navigate(`/movie/${movie.id}`);
   };
-
   return (
     <div className="movie-card" onClick={handleClick}>
 
@@ -29,7 +27,7 @@ const MovieCard = ({ movie }) => {
             <button
               className="btn small-btn"
               onClick={(e) => {
-                e.stopPropagation(); // prevent card click
+                e.stopPropagation(); 
                 navigate(`/book/${movie.id}`);
               }}
             >
