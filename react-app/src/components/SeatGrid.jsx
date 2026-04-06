@@ -10,7 +10,6 @@ const SeatGrid = ({ selectedSeats, setSelectedSeats }) => {
     if (rowIndex < 4) return 180;   // Gold
     return 250;                     // VIP
   };
-
   // Generate structured seat data
   const seatLayout = useMemo(() => {
     const layout = [];
@@ -18,7 +17,6 @@ const SeatGrid = ({ selectedSeats, setSelectedSeats }) => {
     for (let r = 0; r < rows; r++) {
       const rowLabel = String.fromCharCode(65 + r);
       const rowSeats = [];
-
       for (let c = 1; c <= cols; c++) {
         let tier = "VIP";
         if (r < 2) tier = "Silver";
@@ -60,7 +58,6 @@ const SeatGrid = ({ selectedSeats, setSelectedSeats }) => {
 
   return (
     <div className="seat-booking-wrapper">
-
       {/* LEGEND */}
       <div className="seat-legend">
         <div className="legend-item"><div className="seat silver"></div> Silver</div>
