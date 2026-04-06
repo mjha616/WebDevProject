@@ -6,7 +6,6 @@ const Navbar = () => {
   const navigate = useNavigate();
 
   const [search, setSearch] = useState('');
-
   // Handle search submit
   const handleSearch = (e) => {
     if (e.key === 'Enter' && search.trim() !== '') {
