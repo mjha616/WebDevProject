@@ -1,28 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { loginUser } from '../services/api';
+import { AuthContext } from '../context/AuthContext';
 
 const Login = () => {
   const navigate = useNavigate();
+  const { login } = useContext(AuthContext);
 
-  const [formData, setFormData] = useState({
-    email: '',
-    password: ''
-  });
-
+  const [formData, setFormData] = useState({ email: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Handle input change
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+    if (error) setError('');
   };
 
-  // Handle login
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
@@ -30,81 +24,89 @@ const Login = () => {
 
     try {
       const response = await loginUser(formData);
-
-      if (response?.token) {
-        alert("Login successful!");
-        // Future: localStorage.setItem("token", response.token);
-        navigate('/');
-      } else {
-        setError("Invalid credentials");
-      }
+      // Store user + JWT in context/localStorage
+      login(response.user, response.token);
+      navigate('/');
     } catch (err) {
-      setError("Something went wrong. Try again.");
+      setError(err.message || 'Invalid email or password. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <section className="container">
-      <div className="form-container">
+    <section className="auth-page">
+      <div className="auth-card">
 
-        <h2 className="form-title">Welcome Back</h2>
-        <p className="form-subtitle">Login to continue 🎬</p>
+        <div className="auth-icon">🎬</div>
+        <h2 className="auth-title">Welcome Back</h2>
+        <p className="auth-subtitle">Sign in to book your seats</p>
 
-        {/* ERROR MESSAGE */}
-        {error && <p className="error-text">{error}</p>}
+        {error && (
+          <div className="alert alert-error">
+            <span>⚠️</span> {error}
+          </div>
+        )}
 
-        <form onSubmit={handleLogin}>
+        <form onSubmit={handleLogin} className="auth-form">
 
-          {/* EMAIL */}
           <div className="form-group">
-            <label>Email Address</label>
+            <label htmlFor="login-email">Email Address</label>
             <input
+              id="login-email"
               type="email"
               name="email"
               required
-              placeholder="example@email.com"
+              placeholder="you@example.com"
               value={formData.email}
               onChange={handleChange}
+              autoComplete="email"
             />
           </div>
 
-          {/* PASSWORD */}
-          <div className="form-group password-group">
-            <label>Password</label>
+          <div className="form-group">
+            <label htmlFor="login-password">Password</label>
             <div className="password-wrapper">
               <input
-                type={showPassword ? "text" : "password"}
+                id="login-password"
+                type={showPassword ? 'text' : 'password'}
                 name="password"
                 required
                 placeholder="••••••••"
                 value={formData.password}
                 onChange={handleChange}
+                autoComplete="current-password"
               />
-              <span
+              <button
+                type="button"
                 className="toggle-password"
                 onClick={() => setShowPassword(!showPassword)}
+                aria-label="Toggle password visibility"
               >
-                {showPassword ? "🙈" : "👁️"}
-              </span>
+                {showPassword ? '🙈' : '👁️'}
+              </button>
             </div>
           </div>
 
-          {/* BUTTON */}
           <button
             type="submit"
-            className="btn full-btn"
+            className="btn btn-full"
+            id="login-submit"
             disabled={loading}
           >
-            {loading ? "Logging in..." : "Login"}
+            {loading ? (
+              <span className="btn-loading">
+                <span className="spinner" /> Signing in...
+              </span>
+            ) : (
+              'Sign In'
+            )}
           </button>
 
         </form>
 
-        {/* SIGNUP LINK */}
-        <p className="form-footer">
-          Don't have an account? <Link to="/signup">Sign up</Link>
+        <p className="auth-footer">
+          Don't have an account? <Link to="/signup">Create one</Link>
         </p>
 
       </div>

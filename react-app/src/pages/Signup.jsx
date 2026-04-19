@@ -1,143 +1,162 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { signupUser } from '../services/api';
+import { AuthContext } from '../context/AuthContext';
 
 const Signup = () => {
   const navigate = useNavigate();
+  const { login } = useContext(AuthContext);
 
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
   });
 
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Handle input change
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+    if (error) setError('');
   };
 
-  // Handle signup submission
   const handleSignup = async (e) => {
     e.preventDefault();
     setError('');
 
-    // Pre-validation
     if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match");
+      setError('Passwords do not match.');
+      return;
+    }
+    if (formData.password.length < 6) {
+      setError('Password must be at least 6 characters.');
       return;
     }
 
     setLoading(true);
 
     try {
-      // Simulate API request delay
-      await new Promise(resolve => setTimeout(resolve, 800));
-      
-      alert("Sign up successful! Please log in.");
-      navigate('/login');
+      const response = await signupUser({
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+      });
+      // Auto-login after signup
+      login(response.user, response.token);
+      navigate('/');
     } catch (err) {
-      setError("Something went wrong. Try again.");
+      setError(err.message || 'Something went wrong. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <section className="container">
-      <div className="form-container">
+    <section className="auth-page">
+      <div className="auth-card">
 
-        <h2 className="form-title" style={{ marginBottom: "0.5rem" }}>Create an Account</h2>
-        <p className="form-subtitle" style={{ color: "var(--text-muted)", marginBottom: "2rem" }}>Join us to book tickets instantly 🍿</p>
+        <div className="auth-icon">🍿</div>
+        <h2 className="auth-title">Create Account</h2>
+        <p className="auth-subtitle">Join millions of movie lovers</p>
 
-        {/* ERROR MESSAGE */}
-        {error && <p className="error-text">{error}</p>}
+        {error && (
+          <div className="alert alert-error">
+            <span>⚠️</span> {error}
+          </div>
+        )}
 
-        <form onSubmit={handleSignup} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <form onSubmit={handleSignup} className="auth-form">
 
-          {/* NAME */}
           <div className="form-group">
-            <label style={{ display: 'block', marginBottom: '0.3rem' }}>Full Name</label>
+            <label htmlFor="signup-name">Full Name</label>
             <input
+              id="signup-name"
               type="text"
               name="name"
               required
               placeholder="John Doe"
               value={formData.name}
               onChange={handleChange}
+              autoComplete="name"
             />
           </div>
 
-          {/* EMAIL */}
           <div className="form-group">
-            <label style={{ display: 'block', marginBottom: '0.3rem' }}>Email Address</label>
+            <label htmlFor="signup-email">Email Address</label>
             <input
+              id="signup-email"
               type="email"
               name="email"
               required
-              placeholder="example@email.com"
+              placeholder="you@example.com"
               value={formData.email}
               onChange={handleChange}
+              autoComplete="email"
             />
           </div>
 
-          {/* PASSWORD */}
-          <div className="form-group password-group">
-            <label style={{ display: 'block', marginBottom: '0.3rem' }}>Password</label>
+          <div className="form-group">
+            <label htmlFor="signup-password">Password</label>
             <div className="password-wrapper">
               <input
-                type={showPassword ? "text" : "password"}
+                id="signup-password"
+                type={showPassword ? 'text' : 'password'}
                 name="password"
                 required
-                placeholder="••••••••"
+                placeholder="Min. 6 characters"
                 value={formData.password}
                 onChange={handleChange}
+                autoComplete="new-password"
               />
-              <span
+              <button
+                type="button"
                 className="toggle-password"
                 onClick={() => setShowPassword(!showPassword)}
+                aria-label="Toggle password visibility"
               >
-                {showPassword ? "🙈" : "👁️"}
-              </span>
+                {showPassword ? '🙈' : '👁️'}
+              </button>
             </div>
           </div>
 
-          {/* CONFIRM PASSWORD */}
-          <div className="form-group password-group">
-            <label style={{ display: 'block', marginBottom: '0.3rem' }}>Confirm Password</label>
+          <div className="form-group">
+            <label htmlFor="signup-confirm">Confirm Password</label>
             <div className="password-wrapper">
               <input
-                type={showPassword ? "text" : "password"}
+                id="signup-confirm"
+                type={showPassword ? 'text' : 'password'}
                 name="confirmPassword"
                 required
                 placeholder="••••••••"
                 value={formData.confirmPassword}
                 onChange={handleChange}
+                autoComplete="new-password"
               />
             </div>
           </div>
 
-          {/* BUTTON */}
           <button
             type="submit"
-            className="btn"
+            className="btn btn-full"
+            id="signup-submit"
             disabled={loading}
-            style={{ marginTop: '1rem', padding: '0.8rem', width: '100%', fontSize: '1rem' }}
           >
-            {loading ? "Signing up..." : "Sign Up"}
+            {loading ? (
+              <span className="btn-loading">
+                <span className="spinner" /> Creating account...
+              </span>
+            ) : (
+              'Create Account'
+            )}
           </button>
 
         </form>
 
-        {/* LOGIN LINK */}
-        <p className="form-footer" style={{ textAlign: "center", marginTop: "1.5rem" }}>
-          Already have an account? <Link to="/login" style={{ color: "var(--primary-color)", textDecoration: "none" }}>Login</Link>
+        <p className="auth-footer">
+          Already have an account? <Link to="/login">Sign in</Link>
         </p>
 
       </div>

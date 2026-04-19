@@ -1,62 +1,119 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext';
 
 const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { user, logout } = useContext(AuthContext);
 
   const [search, setSearch] = useState('');
+  const [menuOpen, setMenuOpen] = useState(false);
 
-  // Handle search submit
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+    setMenuOpen(false);
+  };
+
   const handleSearch = (e) => {
-    if (e.key === 'Enter' && search.trim() !== '') {
-      navigate(`/movies?search=${encodeURIComponent(search)}`);
-      setSearch(''); // optional: clear after search
+    if (e.key === 'Enter' && search.trim()) {
+      navigate(`/movies?search=${encodeURIComponent(search.trim())}`);
+      setSearch('');
     }
   };
 
+  const isActive = (path) => location.pathname === path;
+
   return (
-    <nav className="navbar">
+    <nav className="navbar" id="main-navbar">
 
       {/* LOGO */}
-      <Link to="/" className="logo">
-        🎬 MovieTicket
+      <Link to="/" className="nav-logo" onClick={() => setMenuOpen(false)}>
+        <span className="logo-icon">🎬</span>
+        <span className="logo-text">MovieTicket</span>
       </Link>
 
-      {/* SEARCH BAR */}
-      <input
-        type="text"
-        placeholder="Search movies..."
-        className="nav-search"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        onKeyDown={handleSearch}
-      />
+      {/* SEARCH */}
+      <div className="nav-search-wrap">
+        <span className="nav-search-icon">🔍</span>
+        <input
+          type="text"
+          id="navbar-search"
+          placeholder="Search movies..."
+          className="nav-search"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          onKeyDown={handleSearch}
+          aria-label="Search movies"
+        />
+      </div>
 
-      {/* LINKS */}
-      <div className="nav-links">
+      {/* HAMBURGER */}
+      <button
+        className={`hamburger ${menuOpen ? 'open' : ''}`}
+        onClick={() => setMenuOpen(!menuOpen)}
+        aria-label="Toggle menu"
+        id="hamburger-btn"
+      >
+        <span />
+        <span />
+        <span />
+      </button>
 
+      {/* NAV LINKS */}
+      <div className={`nav-links ${menuOpen ? 'open' : ''}`}>
         <Link
           to="/movies"
-          className={location.pathname === "/movies" ? "active-link" : ""}
+          className={`nav-link ${isActive('/movies') ? 'active' : ''}`}
+          onClick={() => setMenuOpen(false)}
         >
           Movies
         </Link>
 
-        <Link
-          to="/login"
-          className={location.pathname === "/login" ? "btn active-btn" : "btn"}
-        >
-          Login
-        </Link>
+        {user ? (
+          <>
+            <Link
+              to="/my-bookings"
+              className={`nav-link ${isActive('/my-bookings') ? 'active' : ''}`}
+              onClick={() => setMenuOpen(false)}
+            >
+              My Tickets
+            </Link>
 
-        <Link
-          to="/signup"
-          className={location.pathname === "/signup" ? "btn active-btn" : "btn"}
-        >
-          Sign Up
-        </Link>
-
+            <div className="nav-user">
+              <span className="nav-greeting">
+                👤 {user.name?.split(' ')[0] || user.email.split('@')[0]}
+              </span>
+              <button
+                className="btn btn-sm btn-outline-nav"
+                id="logout-btn"
+                onClick={handleLogout}
+              >
+                Logout
+              </button>
+            </div>
+          </>
+        ) : (
+          <div className="nav-auth">
+            <Link
+              to="/login"
+              className={`btn btn-sm btn-ghost ${isActive('/login') ? 'active' : ''}`}
+              id="nav-login"
+              onClick={() => setMenuOpen(false)}
+            >
+              Login
+            </Link>
+            <Link
+              to="/signup"
+              className="btn btn-sm"
+              id="nav-signup"
+              onClick={() => setMenuOpen(false)}
+            >
+              Sign Up
+            </Link>
+          </div>
+        )}
       </div>
 
     </nav>

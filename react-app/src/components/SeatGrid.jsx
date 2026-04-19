@@ -1,110 +1,116 @@
 import React, { useMemo } from 'react';
 
-const SeatGrid = ({ selectedSeats, setSelectedSeats }) => {
+const GENRE_COLORS = {
+  Action: '#ef4444',
+  'Sci-Fi': '#6366f1',
+  Horror: '#8b5cf6',
+  Drama: '#f59e0b',
+  Adventure: '#10b981',
+  Romance: '#ec4899',
+  Animation: '#14b8a6',
+};
+
+const SeatGrid = ({ selectedSeats, setSelectedSeats, bookedSeats = [], disabled = false }) => {
   const rows = 5;
   const cols = 8;
 
-  // 🎟️ Seat pricing by row
   const getSeatPrice = (rowIndex) => {
     if (rowIndex < 2) return 120;   // Silver
     if (rowIndex < 4) return 180;   // Gold
-    return 250;                     // VIP
+    return 250;                      // VIP
   };
 
-  // Generate structured seat data
   const seatLayout = useMemo(() => {
     const layout = [];
-
     for (let r = 0; r < rows; r++) {
       const rowLabel = String.fromCharCode(65 + r);
       const rowSeats = [];
-
       for (let c = 1; c <= cols; c++) {
-        let tier = "VIP";
-        if (r < 2) tier = "Silver";
-        else if (r < 4) tier = "Gold";
+        let tier = 'VIP';
+        if (r < 2) tier = 'Silver';
+        else if (r < 4) tier = 'Gold';
 
         rowSeats.push({
           id: `${rowLabel}${c}`,
           price: getSeatPrice(r),
-          tier
+          tier,
         });
       }
-
-      layout.push({
-        rowLabel,
-        seats: rowSeats
-      });
+      layout.push({ rowLabel, seats: rowSeats });
     }
-
     return layout;
   }, []);
 
-  // Simulated booked seats
-  const bookedSeats = useMemo(
-    () => ['A3', 'A6', 'B5', 'C4', 'D7', 'E2'],
-    []
-  );
-
   const handleSeatClick = (seat) => {
-    if (bookedSeats.includes(seat.id)) return;
+    if (disabled || bookedSeats.includes(seat.id)) return;
 
-    setSelectedSeats(prev =>
-      prev.find(s => s.id === seat.id)
-        ? prev.filter(s => s.id !== seat.id)
+    setSelectedSeats((prev) =>
+      prev.find((s) => s.id === seat.id)
+        ? prev.filter((s) => s.id !== seat.id)
         : [...prev, seat]
     );
   };
 
-  const total = selectedSeats.reduce((sum, seat) => sum + seat.price, 0)
-
   return (
-    <div className="seat-booking-wrapper">
+    <div className={`seat-wrapper ${disabled ? 'seats-disabled' : ''}`}>
 
-      {/* LEGEND */}
+      {/* TIER LEGEND */}
       <div className="seat-legend">
-        <div className="legend-item"><div className="seat silver"></div> Silver</div>
-        <div className="legend-item"><div className="seat gold"></div> Gold</div>
-        <div className="legend-item"><div className="seat vip"></div> VIP</div>
-        <div className="legend-item"><div className="seat selected"></div> Selected</div>
-        <div className="legend-item"><div className="seat booked"></div> Booked</div>
+        <div className="legend-item">
+          <div className="seat silver" />
+          <span>Silver ₹120</span>
+        </div>
+        <div className="legend-item">
+          <div className="seat gold" />
+          <span>Gold ₹180</span>
+        </div>
+        <div className="legend-item">
+          <div className="seat vip" />
+          <span>VIP ₹250</span>
+        </div>
+        <div className="legend-item">
+          <div className="seat selected" />
+          <span>Selected</span>
+        </div>
+        <div className="legend-item">
+          <div className="seat booked" />
+          <span>Booked</span>
+        </div>
       </div>
 
-      {/* GRID */}
+      {/* SEAT GRID */}
       <div className="seat-layout">
         {seatLayout.map((row, rowIndex) => (
           <div key={row.rowLabel} className="seat-row">
 
-            {/* ROW LABEL */}
             <div className="row-label">{row.rowLabel}</div>
 
-            {/* SEATS */}
             {row.seats.map((seat, i) => {
               const isBooked = bookedSeats.includes(seat.id);
-              const isSelected = selectedSeats.some(s => s.id === seat.id);
+              const isSelected = selectedSeats.some((s) => s.id === seat.id);
 
-              let className = "seat";
-              if (rowIndex < 2) className += " silver";
-              else if (rowIndex < 4) className += " gold";
-              else className += " vip";
+              let cls = 'seat';
+              if (rowIndex < 2) cls += ' silver';
+              else if (rowIndex < 4) cls += ' gold';
+              else cls += ' vip';
 
-              if (isBooked) className += " booked";
-              else if (isSelected) className += " selected";
+              if (isBooked) cls += ' booked';
+              else if (isSelected) cls += ' selected';
 
               return (
                 <React.Fragment key={seat.id}>
-
-                  {/* LEFT BLOCK */}
-                  {i === 3 && <div className="aisle" />}
-
+                  {i === 4 && <div className="aisle" />}
                   <div
-                    className={className}
+                    className={cls}
                     onClick={() => handleSeatClick(seat)}
-                    title={`${seat.id} - ₹${seat.price}`}
+                    title={isBooked ? `${seat.id} — Booked` : `${seat.id} | ${seat.tier} | ₹${seat.price}`}
+                    role="button"
+                    aria-label={`Seat ${seat.id}`}
+                    tabIndex={isBooked ? -1 : 0}
+                    onKeyDown={(e) => e.key === 'Enter' && handleSeatClick(seat)}
                   >
                     <span className="seat-label">{seat.id}</span>
                   </div>
-
                 </React.Fragment>
               );
             })}
@@ -112,16 +118,14 @@ const SeatGrid = ({ selectedSeats, setSelectedSeats }) => {
         ))}
       </div>
 
-      {/* SUMMARY */}
-      <div className="booking-bar">
-        <p>
-          Seats: {selectedSeats.length > 0
-            ? selectedSeats.map(s => `${s.id} (${s.tier})`).join(', ')
-            : 'None'}
-        </p>
-        <p>
-          Total: <strong>₹{total}</strong>
-        </p>
+      {/* MINI SUMMARY */}
+      <div className="seat-summary-bar">
+        <span>
+          {selectedSeats.length > 0
+            ? `${selectedSeats.length} seat${selectedSeats.length > 1 ? 's' : ''} selected: ${selectedSeats.map((s) => s.id).join(', ')}`
+            : 'No seats selected'}
+        </span>
+        <strong>₹{selectedSeats.reduce((s, seat) => s + seat.price, 0)}</strong>
       </div>
 
     </div>

@@ -2,6 +2,16 @@ import React, { useEffect, useState } from 'react';
 import { getMovieById } from '../services/api';
 import { useParams, useNavigate } from 'react-router-dom';
 
+const GENRE_COLORS = {
+  Action: '#ef4444',
+  'Sci-Fi': '#6366f1',
+  Horror: '#8b5cf6',
+  Drama: '#f59e0b',
+  Adventure: '#10b981',
+  Romance: '#ec4899',
+  Animation: '#14b8a6',
+};
+
 const MovieDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -11,100 +21,139 @@ const MovieDetails = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    const fetchMovie = async () => {
-      try {
-        const data = await getMovieById(id);
-        setMovie(data);
-      } catch (err) {
-        setError("Failed to load movie details");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchMovie();
+    getMovieById(id)
+      .then(setMovie)
+      .catch(() => setError('Failed to load movie details'))
+      .finally(() => setLoading(false));
   }, [id]);
 
-  // LOADING
   if (loading) {
-    return <div className="container info-text">Loading movie...</div>;
-  }
-
-  // ERROR
-  if (error || !movie) {
-    return <div className="container error-text">{error || "Movie not found"}</div>;
-  }
-
-  return (
-    <section className="container">
-
-      {/* 🔥 DYNAMIC APPLE MUSIC STYLE BACKGROUND */}
-      {movie && (
-        <div 
-          className="details-page-backdrop" 
-          style={{ backgroundImage: `url(${movie.poster})` }}
-        />
-      )}
-
-      {/* HERO SECTION */}
-      <div className="details-hero">
-        <img
-          src={movie.poster}
-          alt={movie.title}
-          className="details-poster"
-        />
-
-        <div className="details-content">
-          <h1>{movie.title}</h1>
-
-          <p className="movie-meta">
-            ⭐ {movie.rating} • {movie.duration} • {movie.genre}
-          </p>
-
-          <p className="movie-cast">
-            <strong>Cast:</strong> {movie.cast?.join(', ') || "N/A"}
-          </p>
-
-          <p className="movie-desc">
-            {movie.description}
-          </p>
-
-          {/* 🔥 STATUS BADGE */}
-          {movie.status === "upcoming" && (
-            <p style={{ color: "orange", marginBottom: "1rem" }}>
-              ⏳ Coming Soon
-            </p>
-          )}
-
-          {/* 🎟️ BOOK BUTTON LOGIC */}
-          {movie.status === "now" ? (
-            <button
-              className="btn"
-              onClick={() => navigate(`/book/${movie.id}`)}
-            >
-              🎟️ Book Tickets
-            </button>
-          ) : (
-            <button className="btn disabled-btn" disabled>
-              ⏳ Coming Soon
-            </button>
-          )}
-
+    return (
+      <div className="details-loading">
+        <div className="details-skeleton">
+          <div className="skeleton skeleton-poster-lg" />
+          <div className="skeleton-body">
+            <div className="skeleton skeleton-line long" />
+            <div className="skeleton skeleton-line medium" />
+            <div className="skeleton skeleton-line short" />
+          </div>
         </div>
       </div>
+    );
+  }
 
-      {/* 🎬 TRAILER */}
-      {movie.trailer && (
-        <div className="trailer-section">
-          <h3>Watch Trailer 🎬</h3>
-          <iframe
-            src={movie.trailer}
-            title="Trailer"
-            frameBorder="0"
-            allowFullScreen
-          ></iframe>
+  if (error || !movie) {
+    return (
+      <div className="center-page">
+        <div className="empty-state">
+          <div className="empty-icon">😕</div>
+          <h3>{error || 'Movie not found'}</h3>
+          <button className="btn" onClick={() => navigate('/movies')}>Back to Movies</button>
         </div>
-      )}
+      </div>
+    );
+  }
+
+  const genreColor = GENRE_COLORS[movie.genre] || '#f84464';
+
+  return (
+    <section className="details-page">
+
+      {/* BLURRED BACKDROP */}
+      <div
+        className="details-backdrop"
+        style={{ backgroundImage: `url(${movie.poster})` }}
+      />
+
+      <div className="container">
+        <div className="details-hero">
+
+          {/* POSTER */}
+          <div className="details-poster-wrap">
+            <img
+              src={movie.poster || 'https://via.placeholder.com/300x450?text=No+Image'}
+              alt={movie.title}
+              className="details-poster"
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = 'https://via.placeholder.com/300x450?text=No+Image';
+              }}
+            />
+            {movie.status === 'now' && (
+              <div className="now-playing-badge">🔴 Now Playing</div>
+            )}
+          </div>
+
+          {/* INFO */}
+          <div className="details-info">
+
+            {/* GENRE BADGE */}
+            <span
+              className="genre-badge-detail"
+              style={{ background: genreColor + '22', color: genreColor, border: `1px solid ${genreColor}55` }}
+            >
+              {movie.genre}
+            </span>
+
+            <h1 className="details-title">{movie.title}</h1>
+
+            <div className="details-meta">
+              {movie.rating && (
+                <span className="meta-chip rating-chip">⭐ {movie.rating}</span>
+              )}
+              <span className="meta-chip">{movie.duration}</span>
+              <span className="meta-chip">{movie.language}</span>
+            </div>
+
+            <p className="details-description">{movie.description}</p>
+
+            {movie.cast?.length > 0 && (
+              <div className="details-cast">
+                <h4>Cast</h4>
+                <div className="cast-list">
+                  {movie.cast.map((actor) => (
+                    <span key={actor} className="cast-chip">{actor}</span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* BOOKING ACTIONS */}
+            <div className="details-actions">
+              {movie.status === 'now' ? (
+                <button
+                  className="btn btn-book"
+                  id={`book-${movie.id}`}
+                  onClick={() => navigate(`/book/${movie.id}`)}
+                >
+                  🎟️ Book Tickets
+                </button>
+              ) : (
+                <button className="btn btn-coming-soon" disabled>
+                  ⏳ Coming Soon
+                </button>
+              )}
+              <button className="btn btn-outline" onClick={() => navigate('/movies')}>
+                ← Back
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+        {/* TRAILER */}
+        {movie.trailer && (
+          <div className="trailer-section">
+            <h3>Official Trailer 🎬</h3>
+            <iframe
+              src={movie.trailer}
+              title={`${movie.title} Trailer`}
+              frameBorder="0"
+              allowFullScreen
+            />
+          </div>
+        )}
+      </div>
 
     </section>
   );

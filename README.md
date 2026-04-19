@@ -1,49 +1,16 @@
-# Movie Ticket Booking Web App - College Project
+# React + Vite
 
-This is a complete frontend project designed for a 3-member team. The project architecture is structured so that it can be seamlessly upgraded to a complete MERN stack (MongoDB, Express, React, Node.js) application in the next phase.
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-## Tech Stack Division
+Currently, two official plugins are available:
 
-### Member 1: HTML + CSS (`/html-css`)
-- Responsible for semantic HTML structure and responsive design.
-- Uses vanilla CSS for styling (no external CSS frameworks to show core concepts).
-- Files: `index.html`, `movies.html`, `movie-details.html`, `booking-summary.html`, `confirmation.html`, `login.html`, `signup.html`, `style.css`.
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
 
-### Member 2: JavaScript (`/javascript`)
-- Responsible for DOM manipulation and interactive logic.
-- Implements dynamic movie loading, seat selection, and price calculation.
-- Files: `script.js` (logic) and `data.js` (simulated database).
+## React Compiler
 
-### Member 3: React (`/react-app`)
-- Converts the entire Vanilla UI into modern, reusable React components.
-- Sets up routing using React Router Data.
-- Simulates API integration using `services/api.js`.
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
----
+## Expanding the ESLint configuration
 
-## 🚀 How to Run the Project Local
-
-### Option A: Vanilla Version (HTML/CSS/JS)
-1. Open the project folder `html-css`.
-2. Double-click on `index.html` to open it in any web browser (Chrome/Firefox).
-3. Navigation, seat selection, and price calculations will work automatically thanks to the linked `../javascript/script.js`.
-
-### Option B: React Version
-1. Open a terminal and navigate to the `react-app` folder:
-   ```bash
-   cd react-app
-   ```
-2. Install dependencies (Node.js must be installed):
-   ```bash
-   npm install
-   ```
-3. Start the development server:
-   ```bash
-   npm run dev
-   ```
-4. Open the localhost URL provided in the terminal (usually `http://localhost:5173`).
-
----
-
-
-
+If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.

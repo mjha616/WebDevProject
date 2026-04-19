@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getMovies } from '../services/api';
+import { getMovies, getGenres } from '../services/api';
 import MovieCard from '../components/MovieCard';
 import { useLocation } from 'react-router-dom';
 
@@ -8,105 +8,165 @@ const Movies = () => {
 
   const [movies, setMovies] = useState([]);
   const [filteredMovies, setFilteredMovies] = useState([]);
+  const [genres, setGenres] = useState(['All']);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   const [search, setSearch] = useState('');
+  const [activeGenre, setActiveGenre] = useState('All');
 
-  // 🔥 Read search from URL
+  // Read search from URL
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const query = params.get('search');
-
-    if (query) {
-      setSearch(query);
-    } else {
-      setSearch('');
-    }
+    if (query) setSearch(query);
+    else setSearch('');
   }, [location.search]);
+
+  // Fetch genres
+  useEffect(() => {
+    getGenres()
+      .then(setGenres)
+      .catch(() => {});
+  }, []);
 
   // Fetch movies
   useEffect(() => {
-    const fetchMovies = async () => {
-      try {
-        const data = await getMovies();
+    setLoading(true);
+    getMovies()
+      .then((data) => {
         setMovies(data);
         setFilteredMovies(data);
-      } catch (err) {
-        setError('Failed to load movies');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchMovies();
+      })
+      .catch(() => setError('Failed to load movies'))
+      .finally(() => setLoading(false));
   }, []);
 
-  // 🔍 Search filter
+  // Client-side filter by search + genre
   useEffect(() => {
-    const filtered = movies.filter(movie =>
-      movie.title.toLowerCase().includes(search.toLowerCase())
-    );
+    let result = movies;
 
-    setFilteredMovies(filtered);
-  }, [search, movies]);
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      result = result.filter(
+        (m) =>
+          m.title.toLowerCase().includes(q) ||
+          m.genre.toLowerCase().includes(q)
+      );
+    }
 
-  // Split sections
-  const nowShowing = filteredMovies.filter(m => m.status === "now");
-  const upcoming = filteredMovies.filter(m => m.status === "upcoming");
+    if (activeGenre && activeGenre !== 'All') {
+      result = result.filter((m) =>
+        m.genre.toLowerCase().includes(activeGenre.toLowerCase())
+      );
+    }
+
+    setFilteredMovies(result);
+  }, [search, activeGenre, movies]);
+
+  const nowShowing = filteredMovies.filter((m) => m.status === 'now');
+  const upcoming = filteredMovies.filter((m) => m.status === 'upcoming');
 
   return (
-    <section className="container">
+    <section className="movies-page">
 
       {/* HEADER */}
-      <div className="movies-header">
-        <h2>🎬 Movies</h2>
+      <div className="movies-header-bar">
+        <div>
+          <h1 className="movies-title">🎬 Movies</h1>
+          <p className="movies-subtitle">Discover what's playing and what's coming</p>
+        </div>
 
-        <input
-          type="text"
-          placeholder="Search movies..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="search-bar"
-        />
+        <div className="movies-search-wrap">
+          <span className="search-icon">🔍</span>
+          <input
+            id="movies-search"
+            type="text"
+            placeholder="Search by title, genre, cast..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="search-bar"
+            aria-label="Search movies"
+          />
+          {search && (
+            <button className="search-clear" onClick={() => setSearch('')}>✕</button>
+          )}
+        </div>
       </div>
 
-      {/* LOADING */}
-      {loading && <p className="info-text">Loading movies...</p>}
+      {/* GENRE FILTERS */}
+      <div className="genre-filter-bar">
+        {genres.map((genre) => (
+          <button
+            key={genre}
+            id={`genre-${genre}`}
+            className={`genre-chip ${activeGenre === genre ? 'active' : ''}`}
+            onClick={() => setActiveGenre(genre)}
+          >
+            {genre}
+          </button>
+        ))}
+      </div>
+
+      {/* LOADING SKELETON */}
+      {loading && (
+        <div className="movie-grid">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <div key={i} className="movie-card-skeleton">
+              <div className="skeleton skeleton-poster" />
+              <div className="skeleton-info">
+                <div className="skeleton skeleton-line long" />
+                <div className="skeleton skeleton-line short" />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* ERROR */}
-      {error && <p className="error-text">{error}</p>}
+      {error && <p className="error-text center-text">{error}</p>}
 
       {/* EMPTY */}
       {!loading && filteredMovies.length === 0 && (
-        <p className="info-text">No movies found 🎭</p>
+        <div className="empty-state center-text">
+          <div className="empty-icon">🎭</div>
+          <h3>No movies found</h3>
+          <p>Try adjusting your search or genre filter</p>
+        </div>
       )}
 
+      {/* RESULTS */}
       {!loading && !error && filteredMovies.length > 0 && (
         <>
-          {/* NOW SHOWING */}
           {nowShowing.length > 0 && (
-            <>
-              <h3 className="section-title">🔥 Now Showing</h3>
+            <div className="movies-section">
+              <div className="section-heading">
+                <span className="section-dot now" />
+                <h2>Now Showing</h2>
+                <span className="section-count">{nowShowing.length} films</span>
+              </div>
               <div className="movie-grid">
-                {nowShowing.map(movie => (
+                {nowShowing.map((movie) => (
                   <MovieCard key={movie.id} movie={movie} />
                 ))}
               </div>
-            </>
+            </div>
           )}
 
-          {/* UPCOMING */}
           {upcoming.length > 0 && (
-            <>
-              <h3 className="section-title">⏳ Coming Soon</h3>
+            <div className="movies-section">
+              <div className="section-heading">
+                <span className="section-dot upcoming" />
+                <h2>Coming Soon</h2>
+                <span className="section-count">{upcoming.length} films</span>
+              </div>
               <div className="movie-grid">
-                {upcoming.map(movie => (
+                {upcoming.map((movie) => (
                   <MovieCard key={movie.id} movie={movie} />
                 ))}
               </div>
-            </>
+            </div>
           )}
         </>
       )}
