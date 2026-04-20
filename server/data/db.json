@@ -1,0 +1,48 @@
+{
+  "users": [
+    {
+      "id": "1776600266602",
+      "name": "Test User",
+      "email": "test@demo.com",
+      "password": "$2a$10$Ti57Wzi0JNA0pSsULBq6fOUmJIBfA0DDooNAoxJ5viTubSSgH3.fq",
+      "createdAt": "2026-04-19T12:04:26.603Z"
+    }
+  ],
+  "bookings": [
+    {
+      "id": "MB368388",
+      "userId": "1776600266602",
+      "movieId": 3,
+      "movieTitle": "Dhurandhar: The Revenge",
+      "moviePoster": "https://preview.redd.it/new-official-poster-for-dhurandhar-the-revenge-v0-yl3vkwo6l0og1.jpeg?width=640&crop=smart&auto=webp&s=299983205b63389ff46f731a604bd3a0ebd97b23",
+      "seats": [
+        {
+          "id": "A3",
+          "price": 120,
+          "tier": "Silver"
+        },
+        {
+          "id": "A4",
+          "price": 120,
+          "tier": "Silver"
+        },
+        {
+          "id": "A5",
+          "price": 120,
+          "tier": "Silver"
+        }
+      ],
+      "date": "Today, Apr 19",
+      "time": "08:00 PM",
+      "total": 360,
+      "bookedAt": "2026-04-19T12:06:08.388Z"
+    }
+  ],
+  "showtimes": {
+    "3_Today, Apr 19_08:00 PM": [
+      "A3",
+      "A4",
+      "A5"
+    ]
+  }
+}
