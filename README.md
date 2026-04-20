@@ -1,7 +1,7 @@
 # MovieTicket — MERN-Lite Movie Booking App
 
 > A full-stack movie ticket booking application built with **React + Node.js + Express**.  
-> Data persistence via JSON flat-file.
+> Data persistence via JSON flat-file (no MongoDB required for demo).
 
 ---
 
@@ -93,12 +93,21 @@ Unlike a standard clone:
 | POST | `/api/auth/signup` | — | Register user |
 | POST | `/api/auth/login` | — | Login + get JWT |
 | GET | `/api/showtimes/:movieId/:date/:time/seats` | — | Booked seats for showtime |
+<<<<<<< HEAD
 | POST | `/api/bookings` |  JWT | Create booking |
 | GET | `/api/bookings/my` |  JWT | My booking history |
 
 ---
 
 ##  Tech Stack
+=======
+| POST | `/api/bookings` | 🔐 JWT | Create booking |
+| GET | `/api/bookings/my` | 🔐 JWT | My booking history |
+
+---
+
+## 🛠️ Tech Stack
+>>>>>>> e10ad0cef7f1312174d742f556994c84409fac67
 
 | Layer | Tech |
 |-------|------|
